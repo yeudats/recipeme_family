@@ -2,6 +2,7 @@
 <html lang="he" dir="rtl">
   <head>
     <meta charset="UTF-8" />
+    <script src="https://cdnjs.cloudflare.com/ajax/libs/Sortable/1.15.2/Sortable.min.js"></script>
     <meta
       name="viewport"
       content="width=device-width, initial-scale=1.0, maximum-scale=1.0, user-scalable=no, viewport-fit=cover"
@@ -475,6 +476,61 @@
         font-weight: bold;
         font-size: 1.2rem;
       }
+
+      /* עטיפה לכל שורת מצרך (המבורגר + טקסטארייה) */
+      .sortable-item {
+        display: flex;
+        align-items: flex-start; /* שומר שההמבורגר יישאר למעלה אם הטקסט ארוך */
+        width: 100%;
+        gap: 10px;
+        margin: 0.5rem 0;
+        transition: background-color 0.2s ease;
+      }
+
+      /* ביטול המרווח המקורי של האינפוט כדי שהעטיפה תנהל אותו */
+      .sortable-item .input {
+        margin: 0;
+        flex-grow: 1;
+      }
+
+      /* עיצוב ידית הגרירה (המבורגר) שמותאם לעיצוב שלך */
+      .drag-handle {
+        cursor: grab;
+        display: flex;
+        flex-direction: column;
+        gap: 4px;
+        padding: 15px 5px; /* ממרכז מול השורה הראשונה של הטקסט */
+        user-select: none;
+        -webkit-tap-highlight-color: transparent;
+
+        /* שורות התיקון שיאפשרו את הגרירה מחדש: */
+        -webkit-user-drag: element !important;
+        touch-action: none !important;
+      }
+
+      .drag-handle span {
+        width: 18px;
+        height: 2px;
+        background-color: var(--blue-accent);
+        border-radius: 2px;
+        opacity: 0.7;
+        transition: opacity 0.2s;
+      }
+
+      .drag-handle:hover span {
+        opacity: 1;
+      }
+
+      .drag-handle:active {
+        cursor: grabbing;
+      }
+
+      /* קלאס לאלמנט שמוזז באוויר */
+      .sortable-ghost {
+        opacity: 0.5;
+        background-color: #f0f9ff;
+        border-radius: 0.75rem;
+      }
     </style>
   </head>
   <body>
@@ -536,7 +592,7 @@
         <button
           class="button search-button"
           onclick="
-            searchRecipesLocal(document.getElementById('search-input').value);
+            searchRecipesLocal(document.getElementById('search-input').value, false);
           "
         >
           🔍
@@ -549,6 +605,7 @@
         onclick="
           resetAddForm();
           navigateTo('view-add', false);
+          initSortableIngredients();
         "
       >
         הוספת מתכון חדש
@@ -697,7 +754,7 @@
           searchInput.addEventListener("keydown", (e) => {
             if (e.key === "Enter") {
               e.preventDefault();
-              searchRecipesLocal(searchInput.value);
+              searchRecipesLocal(searchInput.value, false);
               // searchInput.value = "";
             }
           });
@@ -826,7 +883,7 @@
             currentView.classList.remove("fading-out");
             currentView.style.display = "none";
             showNextView(nextView, viewId);
-          }, 300);
+          }, 100);
         } else {
           showNextView(nextView, viewId);
         }
@@ -874,7 +931,7 @@
       }
 
       // חיפוש כולל תמיכה בנקודה (.)
-      function searchRecipesLocal(query) {
+      function searchRecipesLocal(query, del = false) {
         lastSearchQuery = query;
         const term = query.trim();
         let results = cachedRecipes;
@@ -907,7 +964,7 @@
             };
             list.appendChild(b);
           });
-          navigateTo("view-search", false);
+          !del && navigateTo("view-search", false);
           if (document.getElementById("search-input")) {
             document.getElementById("search-input").value = "";
           }
@@ -1007,7 +1064,7 @@
         showToast("המתכון נמחק");
 
         // רענון דף החיפוש כדי להסיר את המתכון שנמחק
-        searchRecipesLocal(lastSearchQuery);
+        searchRecipesLocal(lastSearchQuery, true);
 
         navigateTo("view-home", true);
         window.location.href = "#home"; // מאפס לגמרי את המעבר קדימה
@@ -1041,6 +1098,17 @@
 
       function createIngredientInput(index, value) {
         const container = document.getElementById("ingredients-list");
+
+        // 1. יצירת אלמנט עוטף
+        const wrapper = document.createElement("div");
+        wrapper.className = "sortable-item";
+
+        // 2. יצירת ידית הגרירה (המבורגר)
+        const handle = document.createElement("div");
+        handle.className = "drag-handle";
+        handle.innerHTML = "<span></span><span></span><span></span>";
+
+        // 3. הקוד המקורי שלך ליצירת ה-textarea
         const input = document.createElement("textarea");
         input.type = "text";
         input.className = "input ing-input";
@@ -1048,11 +1116,9 @@
         input.value = value;
         input.placeholder = index === 0 ? "הוסף מצרך ראשון" : "הוסף מצרך נוסף";
 
-        // כיבוי השלמה אוטומטית לשדות המצרכים הדינמיים
         input.setAttribute("autocorrect", "off");
         input.setAttribute("autocapitalize", "off");
         input.setAttribute("spellcheck", "false");
-
         input.setAttribute("autocomplete", "off");
         input.setAttribute("data-lpignore", "true");
         input.setAttribute("data-form-type", "other");
@@ -1060,15 +1126,14 @@
 
         input.oninput = (e) => {
           const currentIndex = Number(input.dataset.index);
-
           groceryList[currentIndex] = e.target.value;
-
           autoResize(e.target);
 
-          if (
-            currentIndex === groceryList.length - 1 &&
-            e.target.value.trim() !== ""
-          ) {
+          // בודק אם כל הפריטים במערך מכילים טקסט (כלומר, המערך "מלא" ואין אף שדה ריק)
+          const isArrayFull = groceryList.every((item) => item.trim() !== "");
+
+          // אם כל המערך מלא, נוסיף שדה ריק חדש בסוף
+          if (isArrayFull) {
             groceryList.push("");
             createIngredientInput(groceryList.length - 1, "");
           }
@@ -1076,14 +1141,11 @@
 
         input.onkeydown = (e) => {
           const currentIndex = Number(input.dataset.index);
-
           if (e.key === "Enter" || e.key === "Tab") {
             if (e.key === "Enter") {
               e.preventDefault();
             }
-
             const allInputs = container.querySelectorAll(".ing-input");
-
             if (allInputs[currentIndex + 1]) {
               allInputs[currentIndex + 1].focus();
             }
@@ -1092,31 +1154,66 @@
 
         input.onblur = (e) => {
           const inputEl = e.target;
-
           const currentIndex = Number(inputEl.dataset.index);
           const val = inputEl.value.trim();
 
+          // מעדכנים את הערך במערך
           groceryList[currentIndex] = val;
 
-          const isNotLast = currentIndex !== groceryList.length - 1;
-          const hasMoreThanOne = groceryList.length > 1;
+          // סופרים כמה פריטים ריקים יש כרגע בכל הרשימה
+          const emptyItemsCount = groceryList.filter(
+            (item) => item.trim() === "",
+          ).length;
 
-          if (val === "" && isNotLast && hasMoreThanOne) {
+          // אם השדה הנוכחי ריק, ויש יותר משדה ריק אחד במערך (כלומר יש עוד אחד שממתין להקדה), נמחק אותו
+          if (val === "" && emptyItemsCount > 1) {
             // מחיקה מהמערך
             groceryList.splice(currentIndex, 1);
 
             // מחיקה מה־DOM
-            inputEl.remove();
+            wrapper.remove();
 
-            // עדכון אינדקסים לכל השדות שנשארו
+            // עדכון אינדקסים ו-placeholders לכל השדות שנשארו
+            const container = document.getElementById("ingredients-list");
             container.querySelectorAll(".ing-input").forEach((el, i) => {
               el.dataset.index = i;
+              el.placeholder = i === 0 ? "הוסף מצרך ראשון" : "הוסף מצרך נוסף";
             });
           }
         };
 
-        container.appendChild(input);
+        // 4. הוספת האלמנטים לעטיפה ולמיכל הראשי
+        wrapper.appendChild(handle);
+        wrapper.appendChild(input);
+        container.appendChild(wrapper);
+
         autoResize(input);
+      }
+
+      function initSortableIngredients() {
+        const container = document.getElementById("ingredients-list");
+
+        new Sortable(container, {
+          handle: ".drag-handle", // מאפשר לגרור רק דרך כפתור ההמבורגר
+          animation: 250, // אנימציה חלקה כמו בגוגל מאפס
+          ghostClass: "sortable-ghost",
+
+          // הפעולה החשובה ביותר - מסנכרנת את הסדר החדש חזרה לקוד שלך
+          onEnd: function () {
+            // 1. שולפים את כל האינפוטים לפי הסדר החדש ב-DOM
+            const allInputs = container.querySelectorAll(".ing-input");
+
+            // 2. בונים מחדש את המערך groceryList לפי הסדר החדש
+            groceryList = Array.from(allInputs).map((input) => input.value);
+
+            // 3. מעדכנים מחדש את ה-dataset.index של כולם כדי שה-onblur ו-oninput ימשיכו לעבוד נכון
+            allInputs.forEach((input, i) => {
+              input.dataset.index = i;
+              input.placeholder =
+                i === 0 ? "הוסף מצרך ראשון" : "הוסף מצרך נוסף";
+            });
+          },
+        });
       }
 
       function autoResize(el) {
