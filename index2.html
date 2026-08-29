@@ -531,54 +531,6 @@
         background-color: #f0f9ff;
         border-radius: 0.75rem;
       }
-
-      #switch_pen_camera {
-        width: 10rem; 
-        height: 3rem; 
-        margin: 0.8rem;
-        position: relative;
-        background-color: #dbfcd1;
-        border: 1px solid #0073ff;
-        border-radius: 20rem;
-        cursor: pointer;
-      }
-
-      #circle_pen_camera {
-        height: calc(100% - 2px); 
-        aspect-ratio: 1 / 1;
-        position: absolute;
-        right: 0px;
-        background-color: #b7faa3; 
-        border: 1px solid #0073ff;
-        border-radius: 20rem;
-        cursor: pointer;
-        z-index: 1;
-        transition: transform 0.3s ease-in-out;
-      }
-
-      #switch_pen_camera.active #circle_pen_camera {
-        transform: translateX(calc(-10rem + 100%));
-      }
-
-      .icons {
-        position: absolute;
-        height: calc(100% - 2px); 
-        aspect-ratio: 1 / 1;
-        pointer-events: none;
-        z-index: 10;
-      }
-
-      .exit {
-        position: absolute;
-        top: 10px;
-        right: 10px;
-        background-color: tomato;
-        border: 1px solid tomato;
-        border-radius: 20rem;
-        z-index: 10;
-        cursor: pointer;
-        display: none;
-      }
     </style>
   </head>
   <body>
@@ -670,109 +622,42 @@
     <div id="view-add" class="view">
       <div class="page-container">
         <h2
-        id="view-add-title"
-        class="label"
-        style="text-align: center; font-size: 1.5rem"
+          id="view-add-title"
+          class="label"
+          style="text-align: center; font-size: 1.5rem"
         >
-        הוספת מתכון חדש
-      </h2>
-      
-      <div class="label">שם המתכון</div>
-      <textarea
+          הוספת מתכון חדש
+        </h2>
+
+        <div class="label">שם המתכון</div>
+        <textarea
           id="recipe-name"
           class="input"
           placeholder="למשל: עוגת שוקולד"
-          oninput="autoResize(this)"
+          oninput="
+            autoResize(this)
+            // keepCaretVisible(this);
+          "
           autocomplete="off"
           autocorrect="off"
           autocapitalize="off"
           spellcheck="false"
           inputmode="text"
           data-form-type="other"
-          ></textarea>
-          
-        <div id="switch_pen_camera">
+        ></textarea>
 
-          <div id="circle_pen_camera"></div>
-          <img
-            src="icon_pen.png"
-            class="icons"
-            style="right: 0;"
-            alt="icon"
-            onerror="this.style.display = 'none'"
-            oncontextmenu="return false;"
-            ondragstart="return false;"
-          />
-          <img
-            src="icon_camera.png"
-            class="icons"
-            style="left: 0;"
-            alt="icon"
-            onerror="this.style.display = 'none'"
-            oncontextmenu="return false;"
-            ondragstart="return false;"
-          />
-        </div>
+        <div class="label">מצרכים</div>
+        <div id="ingredients-list"></div>
 
-        <label id="add_pic"
-        class="button cameraadd"
-        disabled
-        style="opacity: 0; display: none; pointer-events: none;"
-        onclick="document.getElementById('fileUpload').click()"
-        >הוספת תמונה
-          <input type="file"
-            id="fileUpload"
-            accept="image/*"
-            style="display: none; opacity: 0; pointer-events: none;"
-            onchange="handleFileSelect(event)"
-          />
-        </label>
-        <div id="inaddpic"
-        class="cameraadd"
-        style="
-          width: 100%;
-          height: 100%;
-          position: relative;
-          display: none;
-          opacity: 0;
-          pointer-events: none;
-        "
-        disabled
-        >
-          <button type="reset" class="exit" onClick="
-            document
-            .querySelector('#inaddpic img').src = '';
-            this.style.opacity = 0;
-            this.disabled = true;
-            this.style.pointerEvents = 'none';
-            this.style.display = 'none';
-          ">×</button>
-
-          <img
-            id="inaddpicimg"
-            style=
-              'width: 100%;
-              height: 100%;
-              z-index: 1;'
-            alt="recipe"
-            src='';
-            onerror="this.style.opacity = 0;
-              this.style.display = 'none';
-              this.disabled = true";
-            oncontextmenu="return false;"
-            ondragstart="return false;"
-            />
-        </div>
-
-        <div class="label penadd">מצרכים</div>
-        <div id="ingredients-list" class="penadd"></div>
-
-        <div class="label penadd">אופן ההכנה</div>
+        <div class="label">אופן ההכנה</div>
         <textarea
           id="recipe-method"
-          class="textarea penadd"
+          class="textarea"
           placeholder="איך מכינים?"
-          oninput="autoResize(this)"
+          oninput="
+            autoResize(this)
+            // keepCaretVisible(this);
+          "
           autocomplete="off"
           autocorrect="off"
           autocapitalize="off"
@@ -790,33 +675,10 @@
     <div id="view-recipe" class="view">
       <div class="page-container">
         <h1 id="display-name"></h1>
-        <div class="label penfeach">מצרכים</div>
-        <ul id="display-ingredients" class="penfeach"></ul>
-        <div class="label penfeach">אופן ההכנה</div>
-        <div id="display-method" class="textarea penfeach"></div>
-
-
-        <div id="infeachpic"
-          class="camerafeach"
-          style="
-            width: 100%;
-            height: 100%;
-            position: relative;
-          "
-          >
-            <img
-              id="infeachimg"
-              style=
-                'width: 100%;
-                height: 100%;'
-              alt="recipe"
-              src='';
-              onerror="this.style.opacity = 1";
-              oncontextmenu="return false;"
-              ondragstart="return false;"
-            />
-        </div>
-
+        <div class="label">מצרכים</div>
+        <ul id="display-ingredients"></ul>
+        <div class="label">אופן ההכנה</div>
+        <div id="display-method" class="textarea"></div>
 
         <button
           class="button"
@@ -836,6 +698,7 @@
     </div>
 
     <script>
+      // ⚠️ החלף את הלינק!
       const API_URL =
         "https://script.google.com/macros/s/AKfycbyg7jQ1hnPkzT-yBVJfUbluXyMToMvS06ezUNXHM985po1PyiVccNKf3oeMSDLsxdIT/exec";
       const CACHE_KEY = "recipeme_data";
@@ -884,7 +747,6 @@
         loadFromCache();
         backgroundSync();
 
-        // navigateTo("view-home", true);
         navigateTo("view-home", true);
 
         const searchInput = document.getElementById("search-input");
@@ -912,40 +774,6 @@
             }
           });
         }
-
-        document.getElementById('switch_pen_camera').addEventListener('click', function() {
-          this.classList.toggle('active');
-          const isActive = this.classList.contains('active');
-
-          const pens = document.getElementsByClassName('penadd');
-          const cameras = document.getElementsByClassName('cameraadd');
-
-          // Toggle Pen elements
-          Array.from(pens).forEach(p => {
-            p.style.opacity = isActive ? 0 : 1;
-            p.disabled = isActive;
-            p.style.pointerEvents = isActive ? 'none' : 'auto';
-            p.style.display = isActive ? 'none' : ''; // '' resets to default display
-          });
-
-          // Toggle Camera elements
-          Array.from(cameras).forEach(c => {
-            c.style.opacity = isActive ? 1 : 0;
-            c.disabled = !isActive;
-            c.style.pointerEvents = isActive ? 'auto' : 'none';
-            c.style.display = isActive ? '' : 'none';
-          });
-
-          if (!isActive) {
-            pendingImageBlob = null;
-            document.querySelector('#inaddpic img').src = '';
-            const exit = document.getElementsByClassName('exit')[0];
-            exit.style.opacity = 0;
-            exit.disabled = true;
-            exit.style.pointerEvents = 'none';
-            exit.style.display = 'none';
-          }
-        });
       };
 
       window.onpopstate = (e) => {
@@ -1006,51 +834,11 @@
         nameInput.readOnly = true;
         nameInput.classList.add("readonly-box"); // משחיר את הרקע קצת
         
-        let isActive = false;
-        recipe.image ? 
-        (document.getElementById('switch_pen_camera').classList.add('active'), isActive = true):
-        (document.getElementById('switch_pen_camera').classList.remove('active'), isActive = false);
-        
-        
-        document.querySelector('#inaddpic img').src = isActive ? recipe.image : '';
-
-        groceryList = [...(recipe.ingredients || []), ""];
+        groceryList = [...recipe.ingredients, ""];
         renderIngredients();
 
         document.getElementById("recipe-method").value = recipe.method;
         
-
-        const pens = document.getElementsByClassName('penadd');
-        const cameras = document.getElementsByClassName('cameraadd');
-
-        // Toggle Pen elements
-        Array.from(pens).forEach(p => {
-          p.style.opacity = isActive ? 0 : 1;
-          p.disabled = isActive;
-          p.style.pointerEvents = isActive ? 'none' : 'auto';
-          p.style.display = isActive ? 'none' : ''; // '' resets to default display
-        });
-
-        // Toggle Camera elements
-        Array.from(cameras).forEach(c => {
-          c.style.opacity = isActive ? 1 : 0;
-          c.disabled = !isActive;
-          c.style.pointerEvents = isActive ? 'auto' : 'none';
-          c.style.display = isActive ? '' : 'none';
-        });
-
-        const exit = document.getElementsByClassName('exit')[0];
-        exit.style.opacity = isActive ? 1 : 0;
-        exit.disabled = !isActive;
-        exit.style.pointerEvents = isActive ? 'auto' : 'none';
-        exit.style.display = isActive ? 'block' : 'none';
-
-        const img = document.querySelector('#inaddpic img')
-        img.style.opacity = isActive ? 1 : 0;
-        img.disabled = !isActive;
-        img.style.display = isActive ? 'block' : 'none';
-
-
         navigateTo("view-add", true);
 
         // תיקון הגובה: נמתין שהדף יוצג ואז נחשב גובה
@@ -1076,38 +864,6 @@
         nameInput.style.height = "auto";
         nameInput.readOnly = false;
         nameInput.classList.remove("readonly-box");
-
-
-        pendingImageBlob = null;
-
-        document.querySelector('#inaddpic img').src = '';
-
-        document.getElementById('switch_pen_camera').classList.remove('active');
-
-        const pens = document.getElementsByClassName('penadd');
-        const cameras = document.getElementsByClassName('cameraadd');
-
-        // Toggle Pen elements
-        Array.from(pens).forEach(p => {
-          p.style.opacity = 1;
-          p.disabled = false;
-          p.style.pointerEvents = 'auto';
-          p.style.display = '';
-        });
-
-        // Toggle Camera elements
-        Array.from(cameras).forEach(c => {
-          c.style.opacity = 0;
-          c.disabled = true;
-          c.style.pointerEvents = 'none';
-          c.style.display = 'none';
-        });
-
-        const exit = document.getElementsByClassName('exit')[0];
-        exit.style.opacity = 0;
-        exit.disabled = true;
-        exit.style.pointerEvents = 'none';
-        exit.style.display = 'none';
 
         groceryList = [""];
         renderIngredients();
@@ -1144,36 +900,11 @@
         }
       }
 
-
-      const toastQueue = [];
-      let isToastActive = false;
-
       function showToast(msg) {
-          toastQueue.push(msg);
-          processQueue();
-      }
-
-      function processQueue() {
-          if (isToastActive || toastQueue.length === 0) return;
-
-          isToastActive = true;
-          const msg = toastQueue.shift();
-          
-          const t = document.getElementById("toast");
-          t.innerText = msg;
-          t.classList.add("show");
-
-          // מציג את ההודעה במשך 3 שניות
-          setTimeout(() => {
-              t.classList.remove("show");
-              
-              // מרווח קצר (300 מילישניות) כדי לאפשר לאנימציית ההיעלמות להסתיים לפני ההודעה הבאה
-              setTimeout(() => {
-                  isToastActive = false;
-                  processQueue();
-              }, 300);
-              
-          }, 3000);
+        const t = document.getElementById("toast");
+        t.innerText = msg;
+        t.classList.add("show");
+        setTimeout(() => t.classList.remove("show"), 3000);
       }
 
       function createMarqueeText(text) {
@@ -1206,13 +937,10 @@
         let results = cachedRecipes;
 
         if (term && term !== ".") {
-          const normTerm = normalizeHebrew(term);
           results = cachedRecipes.filter((r) =>
-            normalizeHebrew(r.name).includes(normTerm)
+            normalizeHebrew(r.name).includes(normalizeHebrew(term)),
           );
-          results.sort((a, b) => 
-            normalizeHebrew(a.name).indexOf(normTerm) - normalizeHebrew(b.name).indexOf(normTerm)
-          );
+          results.sort((a, b) => a.name.indexOf(term) - b.name.indexOf(term));
         }
 
         const list = document.getElementById("search-results");
@@ -1228,9 +956,9 @@
             b.innerHTML = createMarqueeText(recipe.name);
             b.onclick = () => {
               // 🔴 התיקון: שולפים את הנתונים המעודכנים ביותר לפי השם רגע לפני המעבר
-              const latestData = 
+              const latestData =
                 cachedRecipes.find((r) => r.name === recipe.name) || recipe;
-              
+
               renderRecipeData(latestData);
               navigateTo("view-recipe", false);
             };
@@ -1248,170 +976,68 @@
         document.getElementById("display-name").innerHTML = createMarqueeText(
           recipe.name,
         );
-        if (recipe.ingredients && recipe.method) {
-          document.getElementById("display-ingredients").innerHTML =
-            recipe.ingredients.map((i) => `<li>${i}</li>`).join("");
-          document.getElementById("display-method").innerText = recipe.method;
-        
-
-          Array.from(document.getElementsByClassName('camerafeach')).forEach(cam => {
-            cam.style.opacity = 0;
-            cam.style.display = 'none';
-            cam.disabled = true;
-          })
-
-          Array.from(document.getElementsByClassName('penfeach')).forEach(p => {
-            p.style.opacity = 1;
-            p.style.display = 'block'
-            p.disabled = false;
-          })
-
-        } else if (recipe.image) {
-          document.querySelector('#infeachpic img').src = recipe.image;
-
-          Array.from(document.getElementsByClassName('camerafeach')).forEach(cam => {
-            cam.style.opacity = 1;
-            cam.style.display = 'block';
-            cam.disabled = false;
-          })
-
-          Array.from(document.getElementsByClassName('penfeach')).forEach(p => {
-            p.style.opacity = 0;
-            p.style.display = 'none'
-            p.disabled = true;
-          })
-          
-        } else {
-          document.querySelector('#infeachpic img').src = '';
-          document.getElementById("display-ingredients").innerHTML = [];
-          document.getElementById("display-method").innerText = '';
-        
-
-          Array.from(document.getElementsByClassName('camerafeach')).forEach(cam => {
-            cam.style.opacity = 0;
-            cam.style.display = 'none';
-            cam.disabled = true;
-          })
-
-          Array.from(document.getElementsByClassName('penfeach')).forEach(p => {
-            p.style.opacity = 0;
-            p.style.display = 'none'
-            p.disabled = true;
-          })
-        }
-
+        document.getElementById("display-ingredients").innerHTML =
+          recipe.ingredients.map((i) => `<li>${i}</li>`).join("");
+        document.getElementById("display-method").innerText = recipe.method;
       }
 
       async function saveRecipe() {
         const name = document.getElementById("recipe-name").value.trim();
         const method = document.getElementById("recipe-method").value.trim();
         const ingredients = groceryList.filter((item) => item.trim() !== "");
-        
-        const isCameraActive = document.getElementById('switch_pen_camera').classList.contains('active');
 
-        // ולידציות
         if (!isEditMode && cachedRecipes.some((r) => r.name === name)) {
           showToast("כבר קיים מתכון בשם הזה");
           return;
         }
-        
-        if (isCameraActive && (!name || (!pendingImageBlob && !isEditMode))) {
-          showToast("חובה למלא שם, ולהעלות תמונה של המתכון");
-          return;
-        } else if (!isCameraActive && (!name || !method || ingredients.length === 0)) {
+
+        if (!name || !method || ingredients.length === 0) {
           showToast("חובה למלא שם, מצרכים ואופן הכנה");
           return;
-        } 
+        }
 
+        const newRecipe = { name, ingredients, method };
         const saveBtn = document.getElementById("save-btn");
         saveBtn.disabled = true;
 
-        let finalImageUrl = "";
+        const actionType = isEditMode ? "familyUpdateRecipe" : "familyAddRecipe";
 
-        try {
-          // שלב 1: העלאת התמונה אם נבחרה אחת כזו
-          if (pendingImageBlob) {
-            showToast("מעלה תמונה, אנא המתן...");
-            finalImageUrl = await uploadToCloudinary(pendingImageBlob);
-          } else if (isEditMode) {
-            // אם לא העלינו תמונה חדשה אבל אנחנו בעריכה, ניקח את התמונה הקיימת
-            const existingRecipe = cachedRecipes.find(r => r.name === name);
-            if (existingRecipe && document.querySelector('#inaddpic img').src.startsWith('blob:')) {
-              finalImageUrl = existingRecipe.image || "";
-            }
-          }
+        // 1. ממשק אופטימי - שמירה בזיכרון
+        if (isEditMode) {
+          const index = cachedRecipes.findIndex((r) => r.name === name);
+          if (index > -1) cachedRecipes[index] = newRecipe;
+        } else {
+          cachedRecipes.unshift(newRecipe);
+        }
+        saveToCache();
 
-          // יצירת האובייקט הסופי
-          const newRecipe = { name, ingredients, method, image: finalImageUrl };
-          const actionType = isEditMode ? "familyUpdateRecipe" : "familyAddRecipe";
+        showToast(isEditMode ? "המתכון עודכן בהצלחה!" : "המתכון נשמר בהצלחה!");
+        renderRecipeData(newRecipe);
+        saveBtn.disabled = false;
 
-          // שלב 2: שמירה מקומית (אופטימית + LocalStorage)
-          if (isEditMode) {
-            const index = cachedRecipes.findIndex((r) => r.name === name);
-            if (index > -1) cachedRecipes[index] = newRecipe;
-          } else {
-            cachedRecipes.unshift(newRecipe);
-          }
-          saveToCache(); // זה שומר את הקישור האמיתי ב-LocalStorage!
-
-          showToast(isEditMode ? "המתכון עודכן בהצלחה!" : "המתכון נשמר בהצלחה!");
+        if (isEditMode) {
+          navigateTo("view-recipe", true);
+        } else {
+          // אם זה מתכון חדש, הולכים קדימה
           renderRecipeData(newRecipe);
           navigateTo("view-recipe", true);
-          
-          // איפוס מצב עריכה
-          pendingImageBlob = null; 
+        }
 
-          document.querySelector('#inaddpic img').src = '';
-
-          document.getElementById('switch_pen_camera').classList.remove('active');
-
-          const pens = document.getElementsByClassName('penadd');
-          const cameras = document.getElementsByClassName('cameraadd');
-
-          // Toggle Pen elements
-          Array.from(pens).forEach(p => {
-            p.style.opacity = 1;
-            p.disabled = false;
-            p.style.pointerEvents = 'auto';
-            p.style.display = '';
-          });
-
-          // Toggle Camera elements
-          Array.from(cameras).forEach(c => {
-            c.style.opacity = 0;
-            c.disabled = true;
-            c.style.pointerEvents = 'none';
-            c.style.display = 'none';
-          });
-
-          const exit = document.getElementsByClassName('exit')[0];
-          exit.style.opacity = 0;
-          exit.disabled = true;
-          exit.style.pointerEvents = 'none';
-          exit.style.display = 'none';
-
-
-          // שלב 3: סנכרון ל-Google Sheets (GAS)
+        // 2. סנכרון שקט ברקע מול השרת
+        try {
           const response = await fetch(API_URL, {
             method: "POST",
             body: JSON.stringify({ action: actionType, recipe: newRecipe }),
           });
           const result = await response.json();
-          
           if (result.status !== "success") throw new Error(result.message);
-
         } catch (error) {
-          console.error(error);
-          
-          // מנגנון ביטול (Rollback) במקרה של כישלון
+          // מחיקה/שחזור מהקאש במקרה של כישלון בשרת
           if (!isEditMode) {
             cachedRecipes = cachedRecipes.filter((r) => r.name !== name);
           }
           saveToCache();
-          showToast("שגיאה בסנכרון. נסה שוב.");
-        } finally {
-          saveBtn.disabled = false;
-          resetAddForm();
+          showToast("שגיאה בסנכרון לענן: הנתון לא נשמר בשרת");
         }
       }
 
@@ -1626,102 +1252,6 @@
         },
         false,
       );
-
-
-      // משתנה גלובלי שישמור את התמונה המכווצת עד שנלחץ על "שמור"
-      let pendingImageBlob = null;
-
-      // 1. טיפול בבחירת תמונה (תצוגה מקדימה מיידית + כיווץ ברקע)
-      async function handleFileSelect(event) {
-        const file = event.target.files[0];
-        if (!file) return;
-
-        // מציג למשתמש תצוגה מקדימה מהירה מיד
-        const previewUrl = window.URL.createObjectURL(file);
-        const imgElement = document.querySelector('#inaddpic img');
-        if (imgElement.src && imgElement.src.startsWith('blob:')) {
-          URL.revokeObjectURL(imgElement.src);
-        }
-        imgElement.src = previewUrl;
-        imgElement.style.opacity = 1;
-        imgElement.disabled = false;
-        imgElement.style.display = 'block';
-
-        const inaddpic = document.getElementById('inaddpic');
-        inaddpic.style.opacity = 1;
-        inaddpic.disabled = false;
-        inaddpic.style.pointerEvents = 'auto';
-        inaddpic.style.display = 'block';
-
-        const exit = document.getElementsByClassName('exit')[0];
-        exit.style.opacity = 1;
-        exit.disabled = false;
-        exit.style.pointerEvents = 'auto';
-        exit.style.display = 'block';
-
-        groceryList = [""];
-        renderIngredients();
-
-        document.getElementById("recipe-method").value = "";
-        document.getElementById("recipe-method").style.height = "auto";
-
-        // מכווץ את התמונה כדי שתעלה ממש מהר לקלאודינרי
-        pendingImageBlob = await compressImage(file, 800, 0.8); 
-      }
-
-      // 2. פונקציית כיווץ התמונה בדפדפן
-      function compressImage(file, maxWidth, quality) {
-        return new Promise((resolve, reject) => {
-          const reader = new FileReader();
-          reader.readAsDataURL(file);
-          reader.onload = (event) => {
-            const img = new Image();
-            img.src = event.target.result;
-            img.onload = () => {
-              const canvas = document.createElement("canvas");
-              let width = img.width;
-              let height = img.height;
-
-              // מקטין את התמונה אם היא גדולה מדי
-              if (width > maxWidth) {
-                height = Math.round((height * maxWidth) / width);
-                width = maxWidth;
-              }
-
-              canvas.width = width;
-              canvas.height = height;
-
-              const ctx = canvas.getContext("2d");
-              ctx.drawImage(img, 0, 0, width, height);
-
-              // ממיר לפורמט JPEG מכווץ וקל
-              canvas.toBlob((blob) => resolve(blob), "image/jpeg", quality);
-            };
-            img.onerror = reject;
-          };
-          reader.onerror = reject;
-        });
-      }
-
-      // 3. העלאה ישירה לקלאודינרי
-      async function uploadToCloudinary(imageBlob) {
-        const CLOUD_NAME = "dntcntjen"; // שם הענן שלך
-        const UPLOAD_PRESET = "Recipeme"; // הסבר איך ליצור אותו למטה
-
-        const formData = new FormData();
-        formData.append("file", imageBlob);
-        formData.append("upload_preset", UPLOAD_PRESET);
-
-        const response = await fetch(`https://api.cloudinary.com/v1_1/${CLOUD_NAME}/image/upload`, {
-          method: "POST",
-          body: formData
-        });
-
-        if (!response.ok) throw new Error("שגיאה בהעלאת התמונה לענן");
-
-        const data = await response.json();
-        return data.secure_url; // מחזיר את הקישור הסופי (URL) של התמונה המוכנה
-      }
     </script>
 
     <script>
